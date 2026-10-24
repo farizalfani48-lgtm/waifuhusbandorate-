@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waifu & Husbando Tier & Red Flag Rater</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas for Card Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); }
+        @keyframes pulse-fast { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .animate-pulse-fast { animation: pulse-fast 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white min-h-screen pb-16">
+
+    <!-- Live Saweria Ticker Bar -->
+    <div class="bg-amber-500/10 border-b border-amber-500/20 py-2 px-4 text-xs md:text-sm text-amber-300 flex items-center justify-between overflow-hidden">
+        <div class="flex items-center space-x-2 animate-pulse whitespace-nowrap">
+            <i class="fa-solid fa-mug-hot text-amber-400"></i>
+            <span id="ticker-text">🔥 Ilham donated Rp5,000: "Why is my waifu only S tier?!"</span>
+        </div>
+        <a href="https://saweria.co/riez48" target="_blank" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1 rounded-full text-xs transition shadow-sm whitespace-nowrap ml-4">
+            <i class="fa-solid fa-heart mr-1"></i> Support Dev
+        </a>
+    </div>
+
+    <!-- Toast Notification Pop-up (Saweria Simulation) -->
+    <div id="saweria-toast" class="fixed bottom-5 right-5 z-50 transform translate-y-28 opacity-0 transition-all duration-500 bg-slate-900/95 border border-amber-500/50 p-4 rounded-2xl shadow-2xl max-w-sm flex items-center space-x-3">
+        <div class="bg-amber-500 text-slate-950 p-3 rounded-xl font-bold text-lg">
+            <i class="fa-solid fa-coffee"></i>
+        </div>
+        <div>
+            <p class="text-xs text-amber-400 font-semibold" id="toast-title">New Saweria Support!</p>
+            <p class="text-sm font-medium text-white" id="toast-message">Rizki donated Rp10,000</p>
+            <p class="text-xs text-slate-400 italic mt-0.5" id="toast-comment">"Hope my waifu gets SSS tier!"</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="max-w-2xl mx-auto text-center pt-8 px-4">
+        <div class="inline-block bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+            ✨ WAIFU & HUSBANDO TIER & RED FLAG RATER ✨
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+            How Loyal & Worthy is Your Character?
+        </h1>
+        <p class="text-slate-400 text-sm mt-2">Input your favorite waifu or husbando, let AI analyze their tier and red flag status!</p>
+    </header>
+
+    <!-- Main Form Container -->
+    <main class="max-w-xl mx-auto mt-6 px-4">
+        <div class="glass p-6 rounded-3xl border border-white/10 shadow-2xl">
+            <form id="rating-form" class="space-y-5">
+                
+                <!-- Category Selector -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">Select Category</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="category" value="waifu" class="peer hidden" checked>
+                            <div class="text-center py-3 rounded-xl border border-slate-700 bg-slate-800/50 peer-checked:bg-pink-600 peer-checked:border-pink-500 peer-checked:font-bold transition">
+                                <i class="fa-solid fa-heart mr-1"></i> Waifu
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="category" value="husbando" class="peer hidden">
+                            <div class="text-center py-3 rounded-xl border border-slate-700 bg-slate-800/50 peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:font-bold transition">
+                                <i class="fa-solid fa-crown mr-1"></i> Husbando
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Upload Photo -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">Character Photo / Artwork</label>
+                    <div class="flex items-center justify-center w-full">
+                        <label for="char-image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-700 border-dashed rounded-2xl cursor-pointer bg-slate-900/50 hover:bg-slate-800/50 transition">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center" id="upload-placeholder">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-pink-400 mb-2"></i>
+                                <p class="text-xs text-slate-300 font-semibold">Click to upload character photo</p>
+                                <p class="text-[10px] text-slate-500 mt-1">PNG, JPG, or WEBP</p>
+                            </div>
+                            <img id="image-preview" class="hidden h-full w-full object-cover rounded-2xl" alt="Preview">
+                            <input type="file" id="char-image" accept="image/*" class="hidden" required />
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Character Name -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">Character Name</label>
+                    <input type="text" id="char-name" placeholder="E.g. Raiden Shogun, Gojo Satoru..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-500 transition" required>
+                </div>
+
+                <!-- Origin Anime/Game -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">Anime / Game Origin</label>
+                    <input type="text" id="char-origin" placeholder="E.g. Genshin Impact, Jujutsu Kaisen..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-500 transition" required>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 font-bold py-3.5 rounded-xl shadow-lg transition transform active:scale-98">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Run AI Tier & Red Flag Scanner
+                </button>
+            </form>
+        </div>
+
+        <!-- Scanning Loader -->
+        <div id="loader" class="hidden mt-6 glass p-8 rounded-3xl text-center border border-white/10">
+            <div class="inline-block animate-spin text-pink-500 text-4xl mb-4">
+                <i class="fa-solid fa-circle-notch"></i>
+            </div>
+            <h3 class="text-lg font-bold animate-pulse" id="loader-text">Analyzing Looks & Loyalty Level...</h3>
+            <p class="text-xs text-slate-400 mt-1">Checking potential Red Flags in character lore...</p>
+        </div>
+
+        <!-- Result Card Container -->
+        <div id="result-container" class="hidden mt-8 space-y-4">
+            <div id="capture-card" class="bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl relative overflow-hidden transition-all duration-300">
+                <!-- Background Glow -->
+                <div id="card-glow" class="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl opacity-30"></div>
+
+                <!-- Card Header -->
+                <div class="flex items-center space-x-4">
+                    <img id="result-img" class="w-20 h-20 rounded-2xl object-cover border-2 border-slate-600 shadow-md" src="" alt="Character">
+                    <div>
+                        <span id="result-category" class="text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/30">Waifu</span>
+                        <h2 id="result-name" class="text-xl font-extrabold text-white mt-1">Character Name</h2>
+                        <p id="result-origin" class="text-xs text-slate-400">Anime / Game Origin</p>
+                    </div>
+                </div>
+
+                <!-- Overall Tier Badge -->
+                <div class="mt-6 bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">OVERALL TIER SCORE</p>
+                        <p id="result-status-text" class="text-sm font-semibold text-pink-400 mt-0.5">True Wife/Husband Material!</p>
+                    </div>
+                    <div id="overall-tier-badge" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-3xl font-black shadow-lg">
+                        SSS
+                    </div>
+                </div>
+
+                <!-- 6 Rating Categories -->
+                <div class="grid grid-cols-2 gap-3 mt-4 text-xs">
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                        <div class="flex justify-between font-semibold mb-1"><span class="text-slate-400">Looks (Outfit/Style)</span><span id="score-outfit" class="text-pink-400">95</span></div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="bar-outfit" class="bg-pink-500 h-full w-full"></div></div>
+                    </div>
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                        <div class="flex justify-between font-semibold mb-1"><span class="text-slate-400">Facial Appeal</span><span id="score-face" class="text-pink-400">98</span></div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="bar-face" class="bg-pink-500 h-full w-full"></div></div>
+                    </div>
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                        <div class="flex justify-between font-semibold mb-1"><span class="text-slate-400">Body / Proportions</span><span id="score-body" class="text-pink-400">90</span></div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="bar-body" class="bg-pink-500 h-full w-full"></div></div>
+                    </div>
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                        <div class="flex justify-between font-semibold mb-1"><span class="text-slate-400">Behavior & Personality</span><span id="score-behavior" class="text-pink-400">88</span></div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="bar-behavior" class="bg-pink-500 h-full w-full"></div></div>
+                    </div>
+                </div>
+
+                <!-- Loyalty & Red Flag Meter -->
+                <div class="mt-4 bg-slate-950/50 border border-slate-800 p-4 rounded-2xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-300">Loyalty Level</span>
+                        <span id="loyalty-val" class="text-xs font-bold text-emerald-400">99% (Ultra Loyal)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-3">
+                        <div id="loyalty-bar" class="bg-emerald-500 h-full w-[99%]"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+                        <span class="text-xs font-semibold text-slate-300">Relationship Status</span>
+                        <span id="flag-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">🟢 Ultra Green Flag</span>
+                    </div>
+                </div>
+
+                <!-- AI Roast / Comment -->
+                <div class="mt-4 bg-purple-950/30 border border-purple-500/20 p-3.5 rounded-xl text-xs text-purple-200 italic">
+                    💬 <span id="result-comment">"This character is extremely loyal, ready to accompany your daily life across all multiverses!"</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons (Download & Reset) -->
+            <div class="grid grid-cols-2 gap-3">
+                <button id="download-btn" class="bg-emerald-600 hover:bg-emerald-500 font-bold py-3 rounded-xl text-sm transition shadow-lg flex items-center justify-center">
+                    <i class="fa-solid fa-download mr-2"></i> Download Card (.PNG)
+                </button>
+                <button id="reset-btn" class="bg-slate-800 hover:bg-slate-700 font-bold py-3 rounded-xl text-sm transition border border-slate-700 flex items-center justify-center">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Rate Another
+                </button>
+            </div>
+        </div>
+
+        <!-- Saweria Donation & QR Section -->
+        <div class="mt-10 glass p-6 rounded-3xl border border-amber-500/30 text-center space-y-4">
+            <div class="inline-flex items-center justify-center bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-xs font-bold">
+                <i class="fa-solid fa-mug-hot mr-1.5"></i> Support the Creator
+            </div>
+            <h3 class="text-base font-bold text-white">Enjoying this app? Treat the dev a coffee! ☕</h3>
+            <p class="text-xs text-slate-400 max-w-sm mx-auto">Scan the QR code below via GoPay, OVO, Dana, QRIS, etc., or click the button!</p>
+            
+            <!-- Saweria QR Code Asli --> 
+            <div class="flex justify-center my-3">
+                <div class="bg-white p-3 rounded-2xl shadow-lg border border-amber-500/50 inline-block">
+                    <img src="saweria-qr.png" alt="Saweria QR Code" class="w-32 h-32 object-cover rounded-xl">
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <a href="https://saweria.co/riez48" target="_blank" class="inline-block bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs transition shadow-lg">
+                    <i class="fa-solid fa-heart mr-1.5"></i> Open Saweria Page (riez48)
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const maleCharacters = ['gojo', 'naruto', 'goku', 'luffy', 'sasuke', 'zoro', 'levi', 'tanjirou', 'sukuna', 'itadori', 'childe', 'zhongli', 'diluc', 'albedo', 'kaeya', 'venti', 'kazuha', 'scaramouche', 'cyno', 'neuvillette', 'wriothesley', 'dan heng', 'blade', 'jing yuan', 'aventurine', 'ratio', 'boothill', 'jiaoqiu'];
+        const femaleCharacters = ['nezuko', 'raiden', 'shogun', 'furina', 'nahida', 'hutao', 'ganyu', 'ayaka', 'eula', 'shenhe', 'yoimiya', 'nilou', 'dehya', 'clorinde', 'navia', 'arlecchino', 'mualani', 'kinich', 'firefly', 'kafka', 'silver wolf', 'robin', 'march 7th', 'himeko', 'asta', 'herta', 'sailor moon', 'asuka', 'rei', 'zero two', 'power', 'makima', 'miku'];
+
+        // Ticker Messages
+        const tickers = [
+            '🔥 Ilham donated Rp5,000: "Ngapa waifu gw Cuman B anjir?!"',
+            '☕ Rizki donated Rp10,000: "Hope my waifu gets SSS tier!"',
+            '💖 Dinda donated Rp15,000: "My husbando is definitely the most handsome lmao"',
+            '✨ Fariz donated Rp20,000: "Awesome web app bro, keep it up!"'
+        ];
+        let tickerIndex = 0;
+        setInterval(() => {
+            tickerIndex = (tickerIndex + 1) % tickers.length;
+            document.getElementById('ticker-text').innerText = tickers[tickerIndex];
+        }, 4000);
+
+        // Toast Notification Simulation
+        const toastData = [
+            { name: "Ilham", nominal: "Rp5,000", comment: "Why is my waifu only S tier?!" },
+            { name: "Rizki", nominal: "Rp10,000", comment: "Hope my waifu gets SSS tier!" },
+            { name: "Budi", nominal: "Rp25,000", comment: "Oof got Major Red Flag, wild wkwk!" },
+            { name: "Siti", nominal: "Rp10,000", comment: "Guaranteed loyal SSS husbando!" }
+        ];
+        
+        function showToast() {
+            const randomToast = toastData[Math.floor(Math.random() * toastData.length)];
+            document.getElementById('toast-message').innerText = `${randomToast.name} donated ${randomToast.nominal}`;
+            document.getElementById('toast-comment').innerText = `"${randomToast.comment}"`;
+            
+            const toast = document.getElementById('saweria-toast');
+            toast.classList.remove('translate-y-28', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-28', 'opacity-0');
+            }, 4500);
+        }
+        setTimeout(showToast, 5000);
+        setInterval(showToast, 25000);
+
+        // Preview Image Handler
+        const imageInput = document.getElementById('char-image');
+        const imagePreview = document.getElementById('image-preview');
+        const uploadPlaceholder = document.getElementById('upload-placeholder');
+        let uploadedImageSrc = '';
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImageSrc = event.target.result;
+                    imagePreview.src = uploadedImageSrc;
+                    imagePreview.classList.remove('hidden');
+                    uploadPlaceholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form Submit & Rating Calculation
+        const form = document.getElementById('rating-form');
+        const loader = document.getElementById('loader');
+        const resultContainer = document.getElementById('result-container');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const category = document.querySelector('input[name="category"]:checked').value;
+            const nameInput = document.getElementById('char-name').value.trim().toLowerCase();
+            const originInput = document.getElementById('char-origin').value;
+
+            // Smart Gender Validation
+            let isMale = maleCharacters.some(c => nameInput.includes(c));
+            let isFemale = femaleCharacters.some(c => nameInput.includes(c));
+
+            if (category === 'waifu' && isMale && !isFemale) {
+                alert(`⚠️ WAIT! "${document.getElementById('char-name').value}" is a HUSBANDO (Male)! Don't put him in the Waifu category! 😂`);
+                return;
+            }
+            if (category === 'husbando' && isFemale && !isMale) {
+                alert(`⚠️ OOPS! "${document.getElementById('char-name').value}" is a WAIFU (Female)! Please select the Waifu category! 😆`);
+                return;
+            }
+
+            if (!uploadedImageSrc) {
+                alert('Please upload a character photo first!');
+                return;
+            }
+
+            form.parentElement.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+
+                const outfit = Math.floor(Math.random() * 15) + 85;
+                const face = Math.floor(Math.random() * 15) + 85;
+                const body = Math.floor(Math.random() * 20) + 80;
+                const behavior = Math.floor(Math.random() * 30) + 70;
+                const loyalty = Math.floor(Math.random() * 35) + 65;
+
+                const avg = (outfit + face + body + behavior + loyalty) / 5;
+
+                let tier = 'S';
+                let glowColor = 'from-blue-600 to-indigo-600';
+                let statusText = 'Highly Worthy Consideration!';
+                let comment = 'A well-balanced character in both visuals and personality. Safe to build!';
+
+                if (avg >= 92) {
+                    tier = 'SSS';
+                    glowColor = 'from-amber-500 via-pink-500 to-red-600';
+                    statusText = 'God-Tier Wife/Husband Material!';
+                    comment = 'Absolute perfection! Stunning visuals, absolute loyalty, and zero red flags.';
+                } else if (avg >= 87) {
+                    tier = 'SS';
+                    glowColor = 'from-purple-600 to-pink-600';
+                    statusText = 'Charming & Highly Loyal!';
+                    comment = 'Outstanding choice! A bit tsundere at times but genuinely cares for you.';
+                } else if (avg < 75) {
+                    tier = 'B';
+                    glowColor = 'from-slate-600 to-slate-700';
+                    statusText = 'Unpredictable / Needs Caution';
+                    comment = 'Proceed with care, possesses a mysterious vibe that might cause overthinking!';
+                }
+
+                let flagText = '🟢 Ultra Green Flag';
+                let flagClass = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
+                if (loyalty < 75) {
+                    flagText = '🔴 Major Red Flag (Yandere / Danger!)';
+                    flagClass = 'bg-red-500/20 text-red-400 border-red-500/40';
+                    comment = '⚠️ WARNING: High potential for extreme yandere or manipulative behavior. Protect your phone!';
+                } else if (loyalty < 85) {
+                    flagText = '🟡 Caution / Mixed Flag';
+                    flagClass = 'bg-amber-500/20 text-amber-400 border-amber-500/40';
+                }
+
+                document.getElementById('result-img').src = uploadedImageSrc;
+                document.getElementById('result-name').innerText = document.getElementById('char-name').value;
+                document.getElementById('result-origin').innerText = originInput;
+                document.getElementById('result-category').innerText = category.toUpperCase();
+                
+                document.getElementById('overall-tier-badge').innerText = tier;
+                document.getElementById('result-status-text').innerText = statusText;
+                
+                document.getElementById('score-outfit').innerText = outfit;
+                document.getElementById('bar-outfit').style.width = outfit + '%';
+                
+                document.getElementById('score-face').innerText = face;
+                document.getElementById('bar-face').style.width = face + '%';
+                
+                document.getElementById('score-body').innerText = body;
+                document.getElementById('bar-body').style.width = body + '%';
+                
+                document.getElementById('score-behavior').innerText = behavior;
+                document.getElementById('bar-behavior').style.width = behavior + '%';
+                
+                document.getElementById('loyalty-val').innerText = loyalty + '%';
+                document.getElementById('loyalty-bar').style.width = loyalty + '%';
+                document.getElementById('loyalty-bar').className = loyalty < 75 ? 'bg-red-500 h-full' : 'bg-emerald-500 h-full';
+
+                const flagBadge = document.getElementById('flag-badge');
+                flagBadge.innerText = flagText;
+                flagBadge.className = `px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${flagClass}`;
+
+                document.getElementById('result-comment').innerText = comment;
+                document.getElementById('card-glow').className = `absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl opacity-40 bg-gradient-to-br ${glowColor}`;
+
+            }, 1800);
+        });
+
+        // Download Card (.PNG)
+        document.getElementById('download-btn').addEventListener('click', function() {
+            const card = document.getElementById('capture-card');
+            html2canvas(card, { scale: 2, backgroundColor: '#090d16' }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `waifu-husbando-rating.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+
+        // Reset Form
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            resultContainer.classList.add('hidden');
+            form.parentElement.classList.remove('hidden');
+            form.reset();
+            imagePreview.classList.add('hidden');
+            uploadPlaceholder.classList.remove('hidden');
+            uploadedImageSrc = '';
+        });
+    </script>
+</body>
+</html>
